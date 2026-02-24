@@ -1,0 +1,1 @@
+//In hindsight, I would have separated TaskList into a dedicated TaskItem component, but due to time constraints and to avoid breaking the carousel logic, I chose to keep the structure as is.

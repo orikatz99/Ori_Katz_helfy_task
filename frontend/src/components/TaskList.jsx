@@ -8,11 +8,9 @@ function TaskList({ tasks, onToggle, onDelete, onUpdate }) {
     priority: "medium",
   });
 
-  const viewportRef = useRef(null);
   const trackRef = useRef(null);
-
-  const offsetRef = useRef(0);          
-  const loopWidthRef = useRef(0);       
+  const offsetRef = useRef(0);
+  const loopWidthRef = useRef(0);
   const rafRef = useRef(null);
   const lastTsRef = useRef(null);
   const pausedRef = useRef(false);
@@ -29,19 +27,13 @@ function TaskList({ tasks, onToggle, onDelete, onUpdate }) {
   }
 
   useEffect(() => {
-    if (!trackRef.current || !tasks || tasks.length === 0) return;
+    if (!trackRef.current || tasks.length === 0) return;
 
-    const t = setTimeout(() => {
-      const trackEl = trackRef.current;
+    const total = trackRef.current.scrollWidth;
+    loopWidthRef.current = total / 2;
 
-      const total = trackEl.scrollWidth;
-      loopWidthRef.current = total / 2;
-
-      offsetRef.current = 0;
-      trackEl.style.transform = `translateX(0px)`;
-    }, 0);
-
-    return () => clearTimeout(t);
+    offsetRef.current = 0;
+    trackRef.current.style.transform = `translateX(0px)`;
   }, [tasks]);
 
   useEffect(() => {
@@ -55,15 +47,15 @@ function TaskList({ tasks, onToggle, onDelete, onUpdate }) {
         return;
       }
 
-      if (lastTsRef.current == null) lastTsRef.current = ts;
-      const dt = (ts - lastTsRef.current) / 1000; // seconds
+      if (!lastTsRef.current) lastTsRef.current = ts;
+      const dt = (ts - lastTsRef.current) / 1000;
       lastTsRef.current = ts;
 
-      const speed = 60; 
+      const speed = 60;
       offsetRef.current -= speed * dt;
 
-      const loopWidth = loopWidthRef.current || 0;
-      if (loopWidth > 0 && Math.abs(offsetRef.current) >= loopWidth) {
+      const loopWidth = loopWidthRef.current;
+      if (Math.abs(offsetRef.current) >= loopWidth) {
         offsetRef.current += loopWidth;
       }
 
@@ -72,49 +64,24 @@ function TaskList({ tasks, onToggle, onDelete, onUpdate }) {
     }
 
     rafRef.current = requestAnimationFrame(step);
-    return () => {
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
-    };
+
+    return () => cancelAnimationFrame(rafRef.current);
   }, []);
 
   if (!tasks || tasks.length === 0) {
-    return <div style={{ padding: "10px" }}>No tasks yet.</div>;
+    return <div style={{ textAlign: "center" }}>No tasks yet.</div>;
   }
 
   return (
     <div
-      ref={viewportRef}
-      style={{
-        overflow: "hidden",
-        width: "100%",
-        border: "1px solid #ddd",
-        borderRadius: "8px",
-        padding: "10px",
-      }}
+      className="carousel-wrapper"
       onMouseEnter={() => (pausedRef.current = true)}
       onMouseLeave={() => (pausedRef.current = false)}
     >
-      <div
-        ref={trackRef}
-        style={{
-          display: "flex",
-          gap: "16px",
-          willChange: "transform",
-        }}
-      >
+      <div className="carousel-track" ref={trackRef}>
         {loopItems.map((task, idx) => (
-          <div
-            key={`${task.id}-${idx}`} // use index in key to differentiate duplicates
-            style={{
-              minWidth: "280px",
-              maxWidth: "280px",
-              border: "1px solid #ddd",
-              borderRadius: "8px",
-              padding: "12px",
-              background: "#111",
-              flex: "0 0 auto",
-            }}
-          >
+          <div key={`${task.id}-${idx}`} className="task-card">
+
             {editingId === task.id ? (
               <>
                 <input
@@ -122,23 +89,18 @@ function TaskList({ tasks, onToggle, onDelete, onUpdate }) {
                   onChange={(e) =>
                     setEditData({ ...editData, title: e.target.value })
                   }
-                  style={{ width: "100%", marginBottom: "6px" }}
                 />
-
                 <input
                   value={editData.description}
                   onChange={(e) =>
                     setEditData({ ...editData, description: e.target.value })
                   }
-                  style={{ width: "100%", marginBottom: "6px" }}
                 />
-
                 <select
                   value={editData.priority}
                   onChange={(e) =>
                     setEditData({ ...editData, priority: e.target.value })
                   }
-                  style={{ width: "100%", marginBottom: "6px" }}
                 >
                   <option value="low">Low</option>
                   <option value="medium">Medium</option>
@@ -156,52 +118,29 @@ function TaskList({ tasks, onToggle, onDelete, onUpdate }) {
               </>
             ) : (
               <>
-                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                    <div
+                <div className="task-header">
+                  <div
+                    className={`task-title ${
+                      task.completed ? "completed" : ""
+                    }`}
                     onClick={() => onToggle(task.id)}
-                    style={{
-                        cursor: "pointer",
-                        textDecoration: task.completed ? "line-through" : "none",
-                        fontWeight: 700,
-                        fontSize: "16px",
-                        whiteSpace: "nowrap",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis"
-                }}
-                title={task.title}
-            >
-                {task.title}
+                  >
+                    {task.title}
+                  </div>
+
+                  <span
+                    className="priority-badge"
+                    style={{ backgroundColor: getPriorityColor(task.priority) }}
+                  >
+                    {task.priority}
+                  </span>
                 </div>
 
-                <div
-                style={{
-                    marginTop: "6px",
-                    fontSize: "13px",
-                    opacity: 0.85,
-                    height: "34px",
-                    overflow: "hidden"
-                }}
-                >
-                {task.description ? task.description : <span style={{ opacity: 0.5 }}>No description</span>}
+                <div className="task-description">
+                  {task.description || "No description"}
                 </div>
-            </div>
 
-        <span
-            style={{
-            padding: "2px 8px",
-            borderRadius: "10px",
-            fontSize: "12px",
-            backgroundColor: getPriorityColor(task.priority),
-            color: "white",
-            whiteSpace: "nowrap",
-            flexShrink: 0
-            }}
-        >
-        {task.priority}
-        </span>
-    </div>
-                <div style={{ marginTop: "10px", display: "flex", gap: "6px" }}>
+                <div className="task-actions">
                   <button
                     onClick={() => {
                       setEditingId(task.id);

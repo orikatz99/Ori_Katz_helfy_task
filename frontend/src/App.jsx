@@ -3,6 +3,7 @@ import { getTasks, createTask, toggleTask, deleteTask, updateTask } from "./serv
 import TaskList from "./components/TaskList";
 import TaskForm from "./components/TaskForm";
 import TaskFilter from "./components/TaskFilter";
+import "./styles/main.css";
 
 function App() {
   const [tasks, setTasks] = useState([]);
@@ -77,16 +78,17 @@ function App() {
   }
 
   return (
-    <div>
-      <h1>Tasks</h1>
-      <TaskForm onAddTask={handleTaskAdded} />
-      <TaskFilter currentFilter={fiter} onChange={setFilter} />
-      <TaskList tasks={filteredTasks} 
-                onToggle={handleToggle} 
-                onDelete={handleDelete}
-                onUpdate={handleUpdate} />
-    </div>
-  );
+  <div className="app-container">
+    <h1>Tasks</h1>
+    <TaskForm onAddTask={handleTaskAdded} />
+    <TaskList
+      tasks={tasks}
+      onToggle={handleToggle}
+      onDelete={handleDelete}
+      onUpdate={handleUpdate}
+    />
+  </div>
+);
 }
 
 export default App;
