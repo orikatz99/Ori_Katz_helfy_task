@@ -47,3 +47,20 @@ export async function deleteTask(id) {
         throw new Error('Failed to delete task');
     }
 }
+
+export async function updateTask(id, updatedData) {
+    const response = await fetch(`http://localhost:4000/api/tasks/${id}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedData),
+    });
+
+    if (!response.ok) {
+        throw new Error('Failed to update task');
+    }
+
+    return response.json();
+}
+

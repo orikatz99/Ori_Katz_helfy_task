@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getTasks, createTask, toggleTask, deleteTask } from "./services/api";
+import { getTasks, createTask, toggleTask, deleteTask, updateTask } from "./services/api";
 import TaskList from "./components/TaskList";
 import TaskForm from "./components/TaskForm";
 
@@ -49,6 +49,15 @@ function App() {
       setError(err.message);
     }
   }
+
+  async function handleUpdate(id, updatedData) {
+    try {
+      const updatedTask = await updateTask(id, updatedData);
+      setTasks(prev => prev.map(task => task.id === id ? updatedTask : task));
+    } catch (err) {
+      setError(err.message);
+    }
+  }
   
   if (loading) {
     return <div>Loading...</div>;
@@ -64,7 +73,8 @@ function App() {
       <TaskForm onAddTask={handleTaskAdded} />
       <TaskList tasks={tasks} 
                 onToggle={handleToggle} 
-                onDelete={handleDelete} />
+                onDelete={handleDelete}
+                onUpdate={handleUpdate} />
     </div>
   );
 }
