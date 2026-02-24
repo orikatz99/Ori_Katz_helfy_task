@@ -3,6 +3,7 @@ import { getTasks } from "./services/api";
 import TaskList from "./components/TaskList";
 import { createTask } from "./services/api";
 import TaskForm from "./components/TaskForm";
+import { toggleTask } from "./services/api";
 
 function App() {
   const [tasks, setTasks] = useState([]);
@@ -32,6 +33,16 @@ function App() {
       setError(err.message);
     }
   }
+
+  async function handleToggle(id) {
+    try {
+      const updatedTask = await toggleTask(id);
+      setTasks(prev =>prev.map(task =>task.id === id ? updatedTask : task));
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+
   
   if (loading) {
     return <div>Loading...</div>;
@@ -45,7 +56,7 @@ function App() {
     <div>
       <h1>Tasks</h1>
       <TaskForm onAddTask={handleTaskAdded} />
-      <TaskList tasks={tasks} />
+      <TaskList tasks={tasks} onToggle={handleToggle} />
     </div>
   );
 }

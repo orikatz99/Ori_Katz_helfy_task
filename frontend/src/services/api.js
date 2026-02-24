@@ -24,3 +24,16 @@ export async function createTask(task) {
 
   return response.json();
 }
+
+
+export async function toggleTask(id) {
+  const response = await fetch(`http://localhost:4000/api/tasks/${id}`, {
+    method: 'PATCH',
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to toggle task');
+  }
+
+  return response.json();
+}
