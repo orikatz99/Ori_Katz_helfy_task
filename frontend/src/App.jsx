@@ -2,11 +2,13 @@ import { useEffect, useState } from "react";
 import { getTasks, createTask, toggleTask, deleteTask, updateTask } from "./services/api";
 import TaskList from "./components/TaskList";
 import TaskForm from "./components/TaskForm";
+import TaskFilter from "./components/TaskFilter";
 
 function App() {
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null);
+  const [fiter, setFilter] = useState('all');
 
   useEffect(() => {
     async function fetchTasks() {
@@ -58,6 +60,13 @@ function App() {
       setError(err.message);
     }
   }
+
+  const filteredTasks = tasks.filter(task => {
+    if (fiter === 'completed') return task.completed;
+    if (fiter === 'pending') return !task.completed;
+    return true;
+  }
+  );
   
   if (loading) {
     return <div>Loading...</div>;
@@ -71,7 +80,8 @@ function App() {
     <div>
       <h1>Tasks</h1>
       <TaskForm onAddTask={handleTaskAdded} />
-      <TaskList tasks={tasks} 
+      <TaskFilter currentFilter={fiter} onChange={setFilter} />
+      <TaskList tasks={filteredTasks} 
                 onToggle={handleToggle} 
                 onDelete={handleDelete}
                 onUpdate={handleUpdate} />
