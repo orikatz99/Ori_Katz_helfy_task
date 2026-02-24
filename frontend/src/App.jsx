@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { getTasks } from "./services/api";
 import TaskList from "./components/TaskList";
+import { createTask } from "./services/api";
+import TaskForm from "./components/TaskForm";
 
 function App() {
   const [tasks, setTasks] = useState([]);
@@ -21,6 +23,15 @@ function App() {
     
     fetchTasks();
   }, []);
+
+  async function handleTaskAdded(task) {
+    try {
+      const newTask = await createTask(task); 
+      setTasks(prev => [...prev, newTask]);
+    } catch (err) {
+      setError(err.message);
+    }
+  }
   
   if (loading) {
     return <div>Loading...</div>;
@@ -33,6 +44,7 @@ function App() {
   return (
     <div>
       <h1>Tasks</h1>
+      <TaskForm onAddTask={handleTaskAdded} />
       <TaskList tasks={tasks} />
     </div>
   );
