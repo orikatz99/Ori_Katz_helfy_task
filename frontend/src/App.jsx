@@ -1,9 +1,7 @@
 import { useEffect, useState } from "react";
-import { getTasks } from "./services/api";
+import { getTasks, createTask, toggleTask, deleteTask } from "./services/api";
 import TaskList from "./components/TaskList";
-import { createTask } from "./services/api";
 import TaskForm from "./components/TaskForm";
-import { toggleTask } from "./services/api";
 
 function App() {
   const [tasks, setTasks] = useState([]);
@@ -43,6 +41,14 @@ function App() {
     }
   }
 
+  async function handleDelete(id) {
+    try {
+      await deleteTask(id);
+      setTasks(prev => prev.filter(task => task.id !== id));
+    }catch (err) {
+      setError(err.message);
+    }
+  }
   
   if (loading) {
     return <div>Loading...</div>;
@@ -56,7 +62,9 @@ function App() {
     <div>
       <h1>Tasks</h1>
       <TaskForm onAddTask={handleTaskAdded} />
-      <TaskList tasks={tasks} onToggle={handleToggle} />
+      <TaskList tasks={tasks} 
+                onToggle={handleToggle} 
+                onDelete={handleDelete} />
     </div>
   );
 }

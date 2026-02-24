@@ -37,3 +37,13 @@ export async function toggleTask(id) {
 
   return response.json();
 }
+
+export async function deleteTask(id) {
+    const response = await fetch(`http://localhost:4000/api/tasks/${id}`, {
+        method: 'DELETE',
+    });
+
+    if (!response.ok) {
+        throw new Error('Failed to delete task');
+    }
+}

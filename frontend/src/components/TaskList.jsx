@@ -1,4 +1,4 @@
-function TaskList({ tasks, onToggle }) {
+function TaskList({ tasks, onToggle, onDelete }) {
   return (
     <ul>
       {tasks.map(task => (
@@ -12,6 +12,13 @@ function TaskList({ tasks, onToggle }) {
           >
             {task.title}
           </span>
+
+          <button 
+            onClick={() => onDelete(task.id)}
+            style={{ marginLeft: "10px" }}
+          >
+            Delete
+          </button>
         </li>
       ))}
     </ul>
